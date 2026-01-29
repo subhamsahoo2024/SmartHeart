@@ -7,12 +7,14 @@ A comprehensive machine learning application for analyzing cardiovascular health
 **SmartHeart** consists of two main components:
 
 ### Backend (Python + FastAPI)
+
 - **ECG Analysis**: Deep learning model for arrhythmia and abnormality detection
 - **PCG Analysis**: Gradient-boosted classifier for heart murmur detection
 - **Multi-Modal Fusion**: Combined risk assessment from both modalities
 - **RESTful API**: FastAPI server with file upload and prediction endpoints
 
 ### Frontend (Next.js + React)
+
 - **Modern Web Interface**: Built with Next.js 16 and React 19
 - **Interactive Visualizations**: Real-time charts, spectrograms, and waveforms
 - **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
@@ -27,12 +29,14 @@ Follow these instructions to set up and run the entire project from scratch afte
 Before starting, ensure you have the following installed:
 
 #### Required Software
+
 - **Python 3.12+**: [Download Python](https://www.python.org/downloads/)
 - **Node.js 20+**: [Download Node.js](https://nodejs.org/) (LTS version recommended)
 - **Git**: [Download Git](https://git-scm.com/downloads)
 - **uv** (Python package manager): Install with `pip install uv`
 
 #### Verify Installation
+
 ```bash
 python --version    # Should be 3.12 or higher
 node --version      # Should be 20.x or higher
@@ -58,6 +62,7 @@ cd multimodel-heart
 ## 🐍 Step 2: Backend Setup
 
 ### 2.1 Navigate to Backend Directory
+
 ```bash
 cd backend
 ```
@@ -65,16 +70,19 @@ cd backend
 ### 2.2 Install Python Dependencies
 
 Using `uv` (recommended - fastest):
+
 ```bash
 uv sync
 ```
 
 Or using traditional pip:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 This will install all required packages:
+
 - FastAPI & Uvicorn (API server)
 - TensorFlow (ECG deep learning model)
 - Librosa & SciPy (audio processing)
@@ -84,6 +92,7 @@ This will install all required packages:
 ### 2.3 Verify Model Files
 
 Ensure the following trained models are present:
+
 ```
 backend/
 ├── heart_ecg_model/
@@ -105,6 +114,7 @@ uv run uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 Expected output:
+
 ```
 INFO:     Uvicorn running on http://0.0.0.0:8000
 INFO:     Application startup complete.
@@ -115,6 +125,7 @@ INFO:     Application startup complete.
 ### 2.5 Test Backend API
 
 Open a new terminal and test:
+
 ```bash
 # Health check
 curl http://localhost:8000/
@@ -133,6 +144,7 @@ Or visit in your browser: [http://localhost:8000](http://localhost:8000)
 Keep the backend terminal running. Open a **new terminal window** for frontend setup.
 
 ### 3.2 Navigate to Frontend Directory
+
 ```bash
 cd frontend
 ```
@@ -144,6 +156,7 @@ npm install
 ```
 
 This will install:
+
 - Next.js 16 & React 19 (framework)
 - Tailwind CSS v4 (styling)
 - Recharts (data visualization)
@@ -163,6 +176,7 @@ echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env
 ```
 
 Or manually create `frontend/.env` with:
+
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
@@ -174,6 +188,7 @@ npm run dev
 ```
 
 Expected output:
+
 ```
   ▲ Next.js 16.1.4
   - Local:        http://localhost:3000
@@ -183,6 +198,7 @@ Expected output:
 ### 3.6 Open the Application
 
 Open your browser and navigate to:
+
 ```
 http://localhost:3000
 ```
@@ -198,6 +214,7 @@ You should see the SmartHeart interface with file upload options for ECG and PCG
 The project includes demo files for testing:
 
 #### ECG Demo Files
+
 ```
 backend/Demo_Files/ECG/
 ├── Normal/          # Normal ECG signals
@@ -211,6 +228,7 @@ backend/Demo_Files/ECG/
 ```
 
 #### PCG Demo Files
+
 ```
 backend/Demo_Files/PCG/
 ├── Normal/          # Normal heart sounds
@@ -231,10 +249,12 @@ backend/Demo_Files/PCG/
 ### 4.3 Understanding Results
 
 **Risk Scores**:
+
 - **0.0 - 0.5**: Low risk (Normal) - Green indicator
 - **0.5 - 1.0**: High risk (Abnormal) - Red indicator
 
 **Labels**:
+
 - **Normal**: No significant abnormalities detected
 - **Abnormal**: Potential cardiac issues detected
 
@@ -245,12 +265,14 @@ backend/Demo_Files/PCG/
 ### Running Both Services Simultaneously
 
 **Terminal 1 - Backend:**
+
 ```bash
 cd backend
 uv run main.py
 ```
 
 **Terminal 2 - Frontend:**
+
 ```bash
 cd frontend
 npm run dev
@@ -259,6 +281,7 @@ npm run dev
 ### File Watching
 
 Both servers support hot-reloading:
+
 - **Backend**: FastAPI auto-reloads on Python file changes (with `--reload` flag)
 - **Frontend**: Next.js hot-reloads on React/TypeScript file changes
 
@@ -284,6 +307,7 @@ jupyter notebook output_colab_files/ecg_model_training_final.ipynb
 ```
 
 Or use the training script:
+
 ```bash
 uv run model_training.py
 ```
@@ -296,6 +320,7 @@ jupyter notebook output_colab_files/pcg_model_training_final.ipynb
 ```
 
 Training notebooks include:
+
 - Data preprocessing pipelines
 - Model architecture definitions
 - Training loops with validation
@@ -369,6 +394,7 @@ multimodel-heart/
 ### Backend Issues
 
 #### Port 8000 Already in Use
+
 ```bash
 # Find and kill the process using port 8000
 # Windows
@@ -380,6 +406,7 @@ lsof -ti:8000 | xargs kill -9
 ```
 
 #### Module Import Errors
+
 ```bash
 # Reinstall dependencies
 cd backend
@@ -387,22 +414,26 @@ uv sync --refresh
 ```
 
 #### Model Files Missing
+
 Download trained models from the releases page or retrain using the notebooks.
 
 ### Frontend Issues
 
 #### Port 3000 Already in Use
+
 ```bash
 # Use a different port
 npm run dev -- -p 3001
 ```
 
 #### Cannot Connect to Backend
+
 - Verify backend is running on `http://localhost:8000`
 - Check `.env` file has correct `NEXT_PUBLIC_API_URL`
 - Check browser console for CORS errors
 
 #### Module Not Found Errors
+
 ```bash
 # Clear and reinstall
 rm -rf node_modules package-lock.json
@@ -410,6 +441,7 @@ npm install
 ```
 
 #### CSS Not Loading
+
 ```bash
 # Rebuild Tailwind CSS
 npm run build
@@ -419,6 +451,7 @@ npm run dev
 ### CORS Issues
 
 If you see CORS errors, ensure the backend `main.py` has proper CORS configuration:
+
 ```python
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -438,6 +471,7 @@ app.add_middleware(
 ### Backend Deployment
 
 #### Using Docker
+
 ```dockerfile
 FROM python:3.12-slim
 WORKDIR /app
@@ -447,12 +481,14 @@ CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
 Build and run:
+
 ```bash
 docker build -t smartheart-backend .
 docker run -p 8000:8000 smartheart-backend
 ```
 
 #### Using Gunicorn (Production WSGI)
+
 ```bash
 uv run gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
 ```
@@ -460,18 +496,21 @@ uv run gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
 ### Frontend Deployment
 
 #### Vercel (Recommended)
+
 1. Push code to GitHub
 2. Import repository in [Vercel](https://vercel.com)
 3. Add environment variable: `NEXT_PUBLIC_API_URL=<your-backend-url>`
 4. Deploy automatically
 
 #### Build Static Export
+
 ```bash
 npm run build
 npm run start
 ```
 
 #### Using Docker
+
 ```dockerfile
 FROM node:20-alpine
 WORKDIR /app
@@ -488,12 +527,14 @@ CMD ["npm", "start"]
 ## 📊 System Requirements
 
 ### Minimum Requirements
+
 - **CPU**: 4 cores (2.0 GHz)
 - **RAM**: 8 GB
 - **Storage**: 5 GB free space
 - **OS**: Windows 10+, macOS 10.15+, or Linux
 
 ### Recommended Requirements
+
 - **CPU**: 8 cores (3.0 GHz)
 - **RAM**: 16 GB
 - **GPU**: NVIDIA GPU with CUDA support (for faster ECG inference)
@@ -504,12 +545,14 @@ CMD ["npm", "start"]
 ## 🧪 Running Tests
 
 ### Backend Tests
+
 ```bash
 cd backend
 uv run pytest
 ```
 
 ### Frontend Tests
+
 ```bash
 cd frontend
 npm run test
@@ -520,19 +563,23 @@ npm run test
 ## 📚 API Documentation
 
 Once the backend is running, visit:
+
 - **Interactive API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
 - **Alternative Docs**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 
 ### Main Endpoints
 
 #### `POST /predict`
+
 Upload ECG and/or PCG files for analysis.
 
 **Request**: multipart/form-data
+
 - `ecg_file`: CSV file (optional)
 - `pcg_file`: WAV file (optional)
 
 **Response**: JSON
+
 ```json
 {
   "ecg_risk": 0.85,
@@ -568,6 +615,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 👥 Support
 
 For issues and questions:
+
 - **GitHub Issues**: [Create an issue](https://github.com/yourusername/multimodel-heart/issues)
 - **Documentation**: Check [Backend README](backend/README.md) and [Frontend README](frontend/README.md)
 - **API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
