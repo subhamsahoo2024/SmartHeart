@@ -99,36 +99,62 @@ def get_gradcam_heatmap(model, input_array, layer_name):
         input_tensor = tf.convert_to_tensor(input_array, dtype=tf.float32)
         
         with tf.GradientTape() as tape:
+            # CRITICAL: Watch the input tensor to enable gradient flow
+            tape.watch(input_tensor)
+            
             # Pass the input through the grad_model to get feature maps and predictions
             conv_outputs, predictions = grad_model(input_tensor, training=False)
+            
+            # Also watch conv_outputs explicitly
+            tape.watch(conv_outputs)
             
             # Get the score for the top predicted class
             top_pred_index = tf.argmax(predictions[0])
             top_class_channel = predictions[:, top_pred_index]
+            
+            # FIX: When prediction is very close to 1.0 or 0.0 (saturated sigmoid),
+            # gradients become near-zero. Use the raw logit-like score instead.
+            # Apply a small epsilon to avoid taking log of 0 or 1
+            eps = 1e-7
+            clipped_pred = tf.clip_by_value(top_class_channel, eps, 1.0 - eps)
+            # Use log-odds (logit) to get non-saturated gradients
+            logit_score = tf.math.log(clipped_pred / (1.0 - clipped_pred))
 
-        # Compute the gradients of the top class score with respect to the feature maps
-        grads = tape.gradient(top_class_channel, conv_outputs)
+        # Compute the gradients using the logit score (avoids saturation)
+        grads = tape.gradient(logit_score, conv_outputs)
         
         # Handle case where gradients are None
         if grads is None:
             print(f"⚠️ Warning: Gradients are None for layer '{layer_name}'")
             return [0.0] * input_signal_length
-
-        # Global average pooling of the gradients to get the weights
-        pooled_grads = tf.reduce_mean(grads, axis=(0, 1))
-
-        # Get the feature maps from the convolutional layer output
-        conv_outputs = conv_outputs[0]
         
-        # Multiply the feature maps by the weights
-        heatmap = conv_outputs @ pooled_grads[..., tf.newaxis]
-        heatmap = tf.squeeze(heatmap)
+        # FIX: Check if gradients are near-zero (can happen with extreme predictions)
+        grad_magnitude = tf.reduce_max(tf.abs(grads))
+        if grad_magnitude < 1e-10:
+            print(f"⚠️ Warning: Gradients are near-zero for layer '{layer_name}', using absolute feature activations")
+            # Fallback: Use the absolute value of feature activations directly
+            conv_outputs_np = conv_outputs[0].numpy()
+            heatmap = np.mean(np.abs(conv_outputs_np), axis=-1)
+            
+            # Apply ReLU (already positive from abs, but for consistency)
+            heatmap = np.maximum(heatmap, 0)
+        else:
+            # Standard Grad-CAM computation
+            # Global average pooling of the gradients to get the weights
+            pooled_grads = tf.reduce_mean(grads, axis=(0, 1))
 
-        # Apply ReLU
-        heatmap = tf.maximum(heatmap, 0)
-        
-        # Convert to numpy for processing
-        heatmap = heatmap.numpy()
+            # Get the feature maps from the convolutional layer output
+            conv_outputs_single = conv_outputs[0]
+            
+            # Multiply the feature maps by the weights
+            heatmap = conv_outputs_single @ pooled_grads[..., tf.newaxis]
+            heatmap = tf.squeeze(heatmap)
+
+            # Apply ReLU
+            heatmap = tf.maximum(heatmap, 0)
+            
+            # Convert to numpy for processing
+            heatmap = heatmap.numpy()
 
         # Upsample the heatmap to match the original input size
         # The heatmap is 1D, so we get its size
